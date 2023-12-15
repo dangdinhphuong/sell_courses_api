@@ -32,6 +32,7 @@ export const createOrder = async (req, res) => {
       orderDate: new Date(),
       orderStatus: req.body.orderStatus,
       course: product._id,
+      paymentCode:req.body.paymentCode,
       user: user,
       payment: {
         paymentMethod: "Ví điện tử",
