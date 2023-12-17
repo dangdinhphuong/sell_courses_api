@@ -1,4 +1,5 @@
 import express from "express";
+import uploadCloud from "../middlewares/uploader";
 import {
   GetAllUser,
   forgotPassword,
@@ -29,6 +30,6 @@ Router.delete("/user/:id", DeleteUser);
 Router.post("/forgotPassword", forgotPassword);
 Router.post("/resetPassword", resetPassword);
 Router.post("/changePassword", changePassword);
-Router.put("/user/:id", updateUser);
+Router.put("/user/:id",uploadCloud.single('img'), updateUser);
 Router.post("/user/updateBlock", updateBlockUser)
 export default Router;
