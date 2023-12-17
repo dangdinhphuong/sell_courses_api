@@ -101,25 +101,32 @@ export const getAllOrders = async (req, res) => {
 export const getAllOrdersMonay = async (req, res) => {
   const { startDate, endDate } = req.query;
   try {
-    let query;
-    if ((startDate && !endDate) || (startDate && endDate)) {
-      const targetDate = new Date(startDate);
-      targetDate.setHours(0, 0, 0, 0);
-      const targetEndDate = new Date(targetDate);
-      targetEndDate.setHours(23, 59, 59, 999);
-      if (startDate > endDate) {
-        return res
-          .status(500)
-          .json({ error: "startDate must be less than endDate" });
-      }
-      const searchQuery = {
-        orderDate: {
-          $gte: targetDate,
-          $lt: endDate ? endDate : targetEndDate,
-        },
-      };
-      query = { $and: [searchQuery] };
+    let query = {};
+    if(startDate && endDate) {
+      query = {...query, orderDate: {
+        $gte: startDate,
+        $lte: endDate
+      } }
     }
+
+    // if ((startDate && !endDate) || (startDate && endDate)) {
+    //   const targetDate = new Date(startDate);
+    //   targetDate.setHours(0, 0, 0, 0);
+    //   const targetEndDate = new Date(targetDate);
+    //   targetEndDate.setHours(23, 59, 59, 999);
+    //   if (startDate > endDate) {
+    //     return res
+    //       .status(500)
+    //       .json({ error: "startDate must be less than endDate" });
+    //   }
+    //   const searchQuery = {
+    //     orderDate: {
+    //       $gte: targetDate,
+    //       $lt: endDate ? endDate : targetEndDate,
+    //     },
+    //   };
+    //   query = { $and: [searchQuery] };
+    // }
     const orders = await Order.paginate(query)
     const populatedOrders = await Order.populate(orders.docs, [{ path: 'course' }, { path: 'user', model: 'User' }]);
     console.log(populatedOrders);

@@ -48,7 +48,7 @@ export const saveScore  = async (req, res) => {
     try {
       // Sử dụng hàm getOne để lấy dữ liệu ban đầu
       const dataToUpdate = await scoreSchemar.findById(req.params.id);
-  
+      console.log("dataToUpdate",dataToUpdate)
       if (!dataToUpdate) {
         return res.status(404).json({
           message: "Không tìm thấy bản ghi",
