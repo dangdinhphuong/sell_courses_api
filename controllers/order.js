@@ -75,14 +75,15 @@ export const createOrder = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate({
-        path: "course",
-        select: "name price", 
-      })
-      .populate({
-        path: "user",
-        select: "name email phoneNumber", 
-      });
+    .populate({
+      path: "course",
+      select: "name price",
+    })
+    .populate({
+      path: "user",
+      select: "name email phoneNumber",
+    })
+    .sort({ createdAt: -1 });
 
     return res.status(200).json({
       status: "OK",
