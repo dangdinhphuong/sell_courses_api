@@ -11,7 +11,8 @@ import {
   getCurrent,
   refreshAccessToken,
   logout,
-  updateUser
+  updateUser,
+  updateBlockUser
 } from "../controllers/user";
 import passport from 'passport';
 import ('../middlewares/auth');
@@ -29,4 +30,5 @@ Router.post("/forgotPassword", forgotPassword);
 Router.post("/resetPassword", resetPassword);
 Router.post("/changePassword", changePassword);
 Router.put("/user/:id", updateUser);
+Router.post("/user/updateBlock", updateBlockUser)
 export default Router;
