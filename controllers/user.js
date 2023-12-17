@@ -33,6 +33,7 @@ export const SignUp = async (req, res) => {
       img,
       phoneNumber,
       password: hashedPassword,
+      isBlock: 0 // active
     });
     user.password = undefined;
 
@@ -103,7 +104,14 @@ export const Login = async (req, res) => {
   const { email, password } = req.body;
   // plain object
   const response = await UserCheme.findOne({ email });
+  console.log("response_____________", response);
   if (response) {
+    if(response.isBlock == 1) { // kiểm tra xem tk có bị block không
+      return res.status(401).json({
+        success: false,
+        message: "Tài khoản đang bị tạm khóa, vui lòng liên hệ Admin để mở khóa.",
+      });
+    } 
     // Kiểm tra xem mật khẩu có đúng không
     const isPasswordCorrect = await response.isCorrectPassword(password);
     if (isPasswordCorrect) {
@@ -134,7 +142,7 @@ export const Login = async (req, res) => {
   // Trường hợp email hoặc mật khẩu không chính xác
   return res.status(401).json({
     success: false,
-    mes: "Tên tài khoản hoặc mật khẩu không chính xác",
+    message: 'Đăng nhập thất bại. Vui lòng kiểm tra tài khoản hoặc mật khẩu.',
   });
 };
 export const getCurrent = async (req, res) => {
@@ -273,7 +281,29 @@ export const GetOneUser = async (req, res, next) => {
 };
 export const GetAllUser = async (req, res, next) => {
   try {
-    const data = await UserCheme.find();
+    const {role, isBlock, phoneNumber, q, email} = req.query
+    let params = {}
+    if(phoneNumber) params = {...params, phoneNumber : { $regex: phoneNumber, $options: "i" }} 
+    if(q) params = {...params, name : { $regex: q, $options: "i" }  }
+    if(email) params = {...params, email : { $regex: email, $options: "i" } }
+    if(isBlock) {
+      if(isBlock == 'tất cả') {
+        delete params.isBlock
+      }else if(isBlock == 0) {
+        params = {...params, isBlock:  { $ne: 1 } }
+      }else {
+        params = {...params, isBlock}
+      }
+    } 
+    if(role) {
+      if(role == 'tất cả') {
+        delete params.role
+      }else {
+        params = {...params, role }
+      }
+    }
+
+    const data = await UserCheme.find(params);
     return res.json(data);
   } catch (error) {
     return res.status(401).json({
@@ -350,6 +380,7 @@ export const useGG = async (req, res) => {
       img,
       phoneNumber,
       password: hashedPassword,
+      isBlock: 0,
     });
     user.password = undefined;
 
@@ -381,3 +412,28 @@ export const useGG = async (req, res) => {
     });
   }
 };
+
+export const updateBlockUser = async (req, res) => {
+  try {
+    console.log(" req.body",  req.body);
+    const { isBlock, _id } = req.body;
+    const UserExists = await UserCheme.findById(_id);
+    if (!UserExists) {
+      return res.json({
+        message: "User không tồn tại",
+      });
+    }
+    const data = await user.findByIdAndUpdate(_id, {isBlock}, {
+      new: true,
+    });
+    return res.json({
+      message: "Cập nhật thành công",
+      data: data,
+    });
+
+  } catch (error) {
+    return res.status(401).json({
+      message: error.message,
+    });
+  }
+}

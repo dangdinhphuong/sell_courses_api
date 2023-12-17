@@ -16,5 +16,5 @@ router.put('/product/:id',uploadCloud.single('img'),update,(err, req, res, next)
       res.status(500).json({ error: err.message });
     }
   })
-router.post('/product/update-show-web/:id', updateShowWeb)
+router.post('/product/update-show-web', updateShowWeb)
 export default router;

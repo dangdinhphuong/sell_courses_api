@@ -351,7 +351,7 @@ export const updateShowWeb = async (req, res) => {
   try {
 
 
-    const productId = req.params.id;
+    const productId = req.body._id;
     const product = await Product.findById(productId);
     if(!product) {
       return res.status(400).json({
@@ -359,7 +359,7 @@ export const updateShowWeb = async (req, res) => {
       });
     }
     // update trạng thái có hiển thị lên web hay không
-    const updatedData = {isShowWeb: req.query.isShow }
+    const updatedData = {isShowWeb: req.body.isShowWeb }
 
     const data = await Product.findByIdAndUpdate(productId, updatedData, {
       new: true,
