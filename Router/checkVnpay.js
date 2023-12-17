@@ -43,7 +43,7 @@ const checkoutVnpay = {
       vnp_Params["vnp_CurrCode"] = "VND";
       vnp_Params["vnp_IpAddr"] = ip;
       vnp_Params["vnp_Locale"] = "vn";
-      vnp_Params["vnp_OrderInfo"] = "Thanh_toan_don_hang";
+      vnp_Params["vnp_OrderInfo"] = req.body.voucheId;
       vnp_Params[
         "vnp_ReturnUrl"
       ] = `${"http://localhost:5173/payment/status"}/${
