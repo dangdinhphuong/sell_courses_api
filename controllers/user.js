@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 import speakeasy from "speakeasy";
 import { generateAccessToken, generateRefreshToken } from "../middlewares/jwt";
 import user from "../models/user";
+import { v2 as cloudinary } from "cloudinary";
 
 export const SignUp = async (req, res) => {
   try {
@@ -343,12 +344,44 @@ export const changePassword = async (req, res) => {
 };
 export const updateUser = async (req, res) => {
   try {
-    const data = await user.findByIdAndUpdate(req.params.id, req.body, {
+    const filedata = req.file;
+    const users = await user.findById(req.params.id); // Use the imported User model
+    console.log(filedata);
+    if (filedata) {
+      // Nếu có file mới được tải lên, xử lý xóa hình ảnh cũ trên Cloudinary
+      if (users && users.img) {
+        const imageUrl = users.img; // URL hình ảnh
+        const parts = imageUrl.split("/"); // Chia chuỗi URL thành các phần dựa trên dấu /
+        const imageFileName = parts[parts.length - 1]; // Lấy phần cuối cùng của mảng là tên tệp hình ảnh
+        // Nối tên tệp hình ảnh với tiền tố 'lesson_img/' để tạo publicId
+        const publicId = `lesson_img/${imageFileName
+          .split(".")
+          .slice(0, -1)
+          .join(".")}`;
+
+        // Sử dụng phương thức uploader.destroy của Cloudinary để xóa hình ảnh bằng publicId
+        cloudinary.uploader.destroy(publicId, function (error, result) {
+          if (error) {
+            console.error("Xóa hình ảnh không thành công:", error);
+          } else {
+            console.log("Xóa hình ảnh thành công:", result);
+          }
+        });
+      }
+    }
+    
+    const updatedData = {
+      ...req.body,
+      img: filedata ? filedata.path : users ? users.img : undefined, // Giữ nguyên ảnh cũ nếu không có file mới
+    };
+    
+
+    const data = await user.findByIdAndUpdate(req.params.id, updatedData, {
       new: true,
-    });
+    }); // Use the imported User model
     return res.json({
       message: "Cập nhật thành công",
-      data: data,
+      data:data,
     });
   } catch (error) {
     return res.status(400).json({

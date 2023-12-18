@@ -30,6 +30,11 @@ Router.delete("/user/:id", DeleteUser);
 Router.post("/forgotPassword", forgotPassword);
 Router.post("/resetPassword", resetPassword);
 Router.post("/changePassword", changePassword);
-Router.put("/user/:id",uploadCloud.single('img'), updateUser);
+Router.put('/user/:id',uploadCloud.single('img'),updateUser,(err, req, res, next) => {
+  if (err) {
+      console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+})
 Router.post("/user/updateBlock", updateBlockUser)
 export default Router;
